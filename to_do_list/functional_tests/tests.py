@@ -56,7 +56,6 @@ class NewVisitorTest(LiveServerTestCase):
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn('1: Learn Python', [row.text for row in rows])
         self.assertIn('2: Talk with wife', [row.text for row in rows])
-        self.fail('Finish the test!')
 
     def test_multiple_users_can_start_lists_at_different_urls(self):
         self.browser.get(self.live_server_url)
