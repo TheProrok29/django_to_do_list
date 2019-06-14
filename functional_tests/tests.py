@@ -17,7 +17,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         if staging_server:
             self.live_server_url = 'http://' + staging_server
 
-    def terDown(self):
+    def tearDown(self):
         self.browser.quit()
 
     def wait_for_row_in_list_table(self, row_text):
@@ -55,7 +55,7 @@ class NewVisitorTest(StaticLiveServerTestCase):
         inputbox.send_keys(Keys.ENTER)
 
         self.wait_for_row_in_list_table('1: Learn Python')
-        self.wait_for_row_in_list_table('1: Learn Python')
+        self.wait_for_row_in_list_table('2: Talk with wife')
         table = self.browser.find_element_by_id('id_list_table')
         rows = table.find_elements_by_tag_name('tr')
         self.assertIn('1: Learn Python', [row.text for row in rows])
