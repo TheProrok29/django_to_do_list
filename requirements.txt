@@ -1,4 +1,5 @@
 Django==1.11.21
-pytz==2019.1git
+pytz==2019.1
 selenium==3.141.0
 urllib3==1.25.3
+gunicorn==19.9.0
