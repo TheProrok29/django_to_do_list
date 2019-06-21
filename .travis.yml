@@ -9,12 +9,15 @@ before_install:
   - mkdir geckodriver
   - tar -xzf geckodriver-v0.24.0-linux64.tar.gz -C geckodriver
   - export PATH=$PATH:$PWD/geckodriver
-
+before_script:
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"
+  - sleep 3 # give xvfb some time to start
 install:
   - "pip install pytest"
   - "pip install pytest-cov"
   - "pip install -r requirements.txt"
 script:
-  - python manage.py test lists
+  - python manage.py test
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+  - bash <(curl -s https://codecov.io/bash)
