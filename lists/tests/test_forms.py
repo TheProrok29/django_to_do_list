@@ -6,7 +6,7 @@ from lists.forms import EMPTY_ITEM_ERROR, ItemForm
 
 class ItemFormTest(TestCase):
     @skip
-    def test_form_renders_item_text_input(self):
+    def test_form_renders_text_input(self):
         form = ItemForm()
         self.fail(form.as_p())
 
