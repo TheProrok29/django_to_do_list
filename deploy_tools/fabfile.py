@@ -1,68 +1,49 @@
-import random
-from fabric.contrib.files import append, exists, sed
+from fabric.contrib.files import exists
 from fabric.api import cd, env, local, run
-from pathlib import Path
 
 REPO_URL = 'https://github.com/TheProrok29/django_to_do_list.git'
 
 
 def deploy():
     site_folder = f'/home/{env.user}/sites/{env.host}'
-    #site_folder = f'/home/prorok/sites/www.staging.pl'
-    source_folder = site_folder + '/source'
-    _create_directory_structure_if_necessary(site_folder)
-    _get_latest_source(source_folder)
-    _update_settings(source_folder, env.host)
-    _update_virtualenv(source_folder)
-    _update_static_files(source_folder)
-    _update_database(source_folder)
+    run(f'mkdir -p {site_folder}')
+    with cd(site_folder):
+        _get_latest_source()
+        _update_virtualenv()
+        _create_or_update_dotenv()
+        _update_static_files()
+        _update_database()
 
 
-def _create_directory_structure_if_necessary(site_folder):
-    for subfolder in ('database', 'static', 'virtualenv', 'source'):
-        run(f'mkdir -p {site_folder}/{subfolder}')
-
-
-def _get_latest_source(source_folder):
-    if exists(source_folder + '/.git'):
-        run(f'cd {source_folder} && git fetch')
+def _get_latest_source():
+    if exists('.git'):
+        run('git fetch')
     else:
-        run(f'git clone {REPO_URL} {source_folder}')
+        run(f'git clone {REPO_URL} .')
     current_commit = local("git log -n 1 --format=%H", capture=True)
-    run(f'cd {source_folder} && git reset --hard {current_commit}')
+    run(f'git reset --hard {current_commit}')
 
 
-def _update_settings(source_folder, site_name):
-    settings_path = source_folder + '/superlists/settings.py'
-    sed(settings_path, "DEBUG = True", "DEBUG = False")
-    sed(settings_path,
-        'ALLOWED_HOSTS =.+$',
-        f'ALLOWED_HOSTS = ["{site_name}"]'
-        )
-    secret_key_file = source_folder + '/superlists/secret_key.py'
-    if not exists(secret_key_file):
-        chars = 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)'
-        key = ''.join(random.SystemRandom().choice(chars) for _ in range(50))
-        append(secret_key_file, f'SECRET_KEY = "{key}"')
-    append(settings_path, '\nfrom .secret_key import SECRET_KEY')
+def _update_virtualenv():
+    if not exists('virtualenv/bin/pip'):
+        run(f'python3.6 -m venv virtualenv')
+    run('./virtualenv/bin/pip install -r requirements.txt')
 
 
-def _update_virtualenv(source_folder):
-    virtualenv_folder = source_folder + '/../virtualenv'
-    if not exists(virtualenv_folder + '/bin/pip'):
-        run(f'python3.6 -m venv {virtualenv_folder}')
-    run(f'{virtualenv_folder}/bin/pip install -r {source_folder}/requirements.txt')
+def _create_or_update_dotenv():
+    append('.env', 'DJANGO_DEBUG_FALSE=y')
+    append('.env', f'SITENAME={env.host}')
+    current_contents = run('cat .env')
+    if 'DJANGO_SECRET_KEY' not in current_contents:
+        new_secret = ''.join(random.SystemRandom().choices(
+            'abcdefghijklmnopqrstuvwxyz0123456789', k=50
+        ))
+        append('.env', f'DJANGO_SECRET_KEY={new_secret}')
 
 
-def _update_static_files(source_folder):
-    run(
-        f'cd {source_folder}'
-        ' && ../virtualenv/bin/python manage.py collectstatic --noinput'
-    )
+def _update_static_files():
+    run('./virtualenv/bin/python manage.py collectstatic --noinput')
 
 
-def _update_database(source_folder):
-    run(
-        f'cd {source_folder}'
-        ' && ../virtualenv/bin/python manage.py migrate --noinput'
-    )
+def _update_database():
+    run('./virtualenv/bin/python manage.py migrate --noinput')
