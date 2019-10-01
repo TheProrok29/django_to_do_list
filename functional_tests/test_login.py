@@ -50,7 +50,7 @@ class LoginTest(FunctionalTest):
         if self.staging_server:
             test_email = 'prorok29@vp.pl'
         else:
-            test_email = 'prorok29@vp.pl'
+            test_email = 'prorok2d9@vp.pl'
         
         self.browser.get(self.live_server_url)
         self.browser.find_element_by_name('email').send_keys(test_email)
