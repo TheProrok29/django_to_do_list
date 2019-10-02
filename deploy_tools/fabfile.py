@@ -38,12 +38,13 @@ def _update_virtualenv(source_folder):
 def _create_or_update_dotenv(site_folder ):
     append(f'{site_folder }/.env', 'DJANGO_DEBUG_FALSE=y')
     append(f'{site_folder }/.env', f'SITENAME={env.host}')
-    current_contents = run(f'cat {site_folder }/.env')
+    current_contents = run(f'cat {site_folder}/.env')
     if 'DJANGO_SECRET_KEY' not in current_contents:
         new_secret = ''.join(random.SystemRandom().choices(
             'abcdefghijklmnopqrstuvwxyz0123456789', k=50
         ))
-        append(f'{site_folder }/.env', f'DJANGO_SECRET_KEY={new_secret}')
+        email_password = os.environ['EMAIL_PASSWORD']  
+        append(f'{site_folder }/.env', f'EMAIL_PASSWORD={email_password}')
 
 
 def _update_static_files(source_folder):
