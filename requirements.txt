@@ -3,3 +3,4 @@ pytz==2019.1
 selenium==3.141.0
 urllib3==1.25.3
 gunicorn==19.9.0
+Fabric3==1.14.post1
