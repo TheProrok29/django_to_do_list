@@ -1,6 +1,6 @@
 Django==1.11.29
 pytz==2019.1
 selenium==3.141.0
-urllib3==1.25.8
+urllib3==1.26.5
 gunicorn==19.9.0
 Fabric3==1.14.post1
